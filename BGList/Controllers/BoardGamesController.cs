@@ -1,4 +1,5 @@
 ﻿using BGList.DTO;
+using BGList.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BGList.Controllers
