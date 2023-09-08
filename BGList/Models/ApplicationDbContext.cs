@@ -46,12 +46,12 @@ namespace BGList.Models
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Publisher>()
-                .HasMany(x => x.BoardGames)
-                .WithOne(y => y.Publisher)
-                .HasForeignKey(f => f.PublisherId)
-                .IsRequired()
-                .OnDelete(DeleteBehavior.Cascade);
+            //modelBuilder.Entity<Publisher>()
+            //    .HasMany(x => x.BoardGames)
+            //    .WithOne(y => y.Publisher)
+            //    .HasForeignKey(f => f.PublisherId)
+            //    .IsRequired()
+            //    .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<BoardGames_Categories>()
                 .HasKey(i => new { i.BoardGameId, i.CategoryId });
@@ -74,7 +74,7 @@ namespace BGList.Models
         public DbSet<BoardGame> BoardGames => Set<BoardGame>();
         public DbSet<Domain> Domains => Set<Domain>();
         public DbSet<Mechanic> Mechanics => Set<Mechanic>();
-        public DbSet<Publisher> Publishers => Set<Publisher>();
+        //public DbSet<Publisher> Publishers => Set<Publisher>();
         public DbSet<BoardGames_Domains> BoardGames_Domains => Set<BoardGames_Domains>();
         public DbSet<BoardGames_Mechanics> BoardGames_Mechanics => Set<BoardGames_Mechanics>();
         public DbSet<BoardGames_Categories> BoardGames_Categories => Set<BoardGames_Categories>();
