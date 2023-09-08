@@ -30,9 +30,9 @@ namespace BGList.Controllers
 
         [HttpPut(Name = "Seed")]
         [ResponseCache(NoStore = true)]
-        public async Task<IActionResult> Put()
+        public async Task<IActionResult> Put(int? id = null)
         {
-            var config = new CsvConfiguration(CultureInfo.GetCultureInfo("pr-BR"))
+            var config = new CsvConfiguration(CultureInfo.GetCultureInfo("pt-BR"))
             {
                 HasHeaderRecord = true,
                 Delimiter = ";"
@@ -56,7 +56,8 @@ namespace BGList.Controllers
             {
                 if (!record.ID.HasValue
                     || string.IsNullOrEmpty(record.Name)
-                    || existingBoardGames.ContainsKey(record.ID.Value))
+                    || existingBoardGames.ContainsKey(record.ID.Value)
+                    || (id.HasValue && id.Value != record.ID.Value))
                 {
                     skippedRows++;
                     continue;
