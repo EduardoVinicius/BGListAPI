@@ -1,9 +1,7 @@
-﻿using BGList.Attributes;
-using BGList.DTO;
+﻿using BGList.DTO;
 using BGList.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
 using System.Linq.Dynamic.Core;
 
 namespace BGList.Controllers
