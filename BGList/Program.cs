@@ -1,6 +1,7 @@
 using BGList.Models;
 using BGList.Swagger;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -47,8 +48,9 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.Configure<ApiBehaviorOptions>(options =>
-    options.SuppressModelStateInvalidFilter = true);
+// Code replaced by the [ManualValidationFilter] attribute
+// builder.Services.Configure<ApiBehaviorOptions>(options =>
+//     options.SuppressModelStateInvalidFilter = true);
 
 var app = builder.Build();
 
@@ -72,7 +74,22 @@ app.UseAuthorization();
 
 app.MapGet("/error",
     [EnableCors("AnyOrigin")]
-    [ResponseCache(NoStore = true)] () => Results.Problem());
+    [ResponseCache(NoStore = true)] (HttpContext context) =>
+    {
+        var exceptionHandler = context.Features.Get<IExceptionHandlerPathFeature>();
+
+        // TODO: logging, sending notifications, and more
+
+        var details = new ProblemDetails();
+        details.Detail = exceptionHandler?.Error.Message;
+
+        details.Extensions["traceId"] = 
+            System.Diagnostics.Activity.Current?.Id
+                ?? context.TraceIdentifier;
+        details.Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1";
+        details.Status = StatusCodes.Status500InternalServerError;
+        return Results.Problem(details);
+    });
 
 app.MapGet("/error/test",
     [EnableCors("AnyOrigin")]
