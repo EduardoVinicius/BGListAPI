@@ -6,6 +6,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Logging
+    .ClearProviders()
+    //.AddSimpleConsole(options =>              Commented for knowledge reasons.
+    //{
+    //    options.SingleLine = true;
+    //    options.TimestampFormat = "HH:mm:ss";
+    //    options.UseUtcTimestamp = true;
+    //})
+    .AddSimpleConsole()
+    .AddDebug();
 
 // Add services to the container.
 
