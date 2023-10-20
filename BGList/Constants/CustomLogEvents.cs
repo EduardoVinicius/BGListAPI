@@ -2,6 +2,8 @@
 {
     public class CustomLogEvents
     {
+        public const int Error_Get = 50001;
+
         public const int BoardGamesController_Get = 50110;
         public const int BoardGamesController_Post = 50120;
         public const int BoardGamesController_Put = 50130;

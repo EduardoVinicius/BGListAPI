@@ -1,3 +1,4 @@
+using BGList.Constants;
 using BGList.Models;
 using BGList.Swagger;
 using Microsoft.AspNetCore.Cors;
@@ -109,6 +110,11 @@ app.MapGet("/error",
             details.Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1";
             details.Status = StatusCodes.Status500InternalServerError;
         }
+
+        app.Logger.LogError(
+            CustomLogEvents.Error_Get,
+            exceptionHandler?.Error,
+            "An unhandled exception occurred.");
 
         return Results.Problem(details);
     });
