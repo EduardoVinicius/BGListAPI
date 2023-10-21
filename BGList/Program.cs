@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
+using Serilog.Sinks.MSSqlServer;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging
@@ -16,7 +18,24 @@ builder.Logging
     //    options.UseUtcTimestamp = true;
     //})
     .AddSimpleConsole()
-    .AddDebug();
+    .AddDebug()
+    .AddApplicationInsights(
+        telemetry => telemetry.ConnectionString = 
+            builder.Configuration["Azure:ApplicationInsights:ConnectionString"],
+        loggerOptions => { });
+
+builder.Host.UseSerilog((ctx, lc) =>
+{
+    lc.ReadFrom.Configuration(ctx.Configuration);
+    lc.WriteTo.MSSqlServer(
+        connectionString: ctx.Configuration.GetConnectionString("DefaultConnection"),
+        sinkOptions: new MSSqlServerSinkOptions
+        {
+            TableName = "LogEvents",
+            AutoCreateSqlTable = true
+        }
+    );
+}, writeToProviders: true);
 
 // Add services to the container.
 
