@@ -29,7 +29,9 @@ namespace BGList.Controllers
             [FromQuery] RequestDTO<BoardGameDTO> input)
         {
             _logger.LogInformation(CustomLogEvents.BoardGamesController_Get,
-                "Get method started.");
+                "Get method started. [{MachineName}] [{ThreadId}].",
+                Environment.MachineName,
+                Environment.CurrentManagedThreadId);
 
             var query = _context.BoardGames.AsQueryable();
             if (!string.IsNullOrEmpty(input.FilterQuery))

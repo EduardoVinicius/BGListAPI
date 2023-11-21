@@ -18,21 +18,59 @@ builder.Logging
     //    options.UseUtcTimestamp = true;
     //})
     .AddSimpleConsole()
-    .AddDebug()
-    .AddApplicationInsights(
-        telemetry => telemetry.ConnectionString = 
-            builder.Configuration["Azure:ApplicationInsights:ConnectionString"],
-        loggerOptions => { });
+    //.AddJsonConsole(
+    //    options =>
+    //    {
+    //        options.TimestampFormat = "HH:mm";
+    //        options.UseUtcTimestamp = true;
+    //    }
+    //)
+    .AddDebug();
+    //.AddApplicationInsights(
+    //    telemetry => telemetry.ConnectionString = 
+    //        builder.Configuration["Azure:ApplicationInsights:ConnectionString"],
+    //    loggerOptions => { });
 
 builder.Host.UseSerilog((ctx, lc) =>
 {
+    //lc.MinimumLevel.Is(Serilog.Events.LogEventLevel.Warning);
+    //lc.MinimumLevel.Override("MyBGList", Serilog.Events.LogEventLevel.Information);
     lc.ReadFrom.Configuration(ctx.Configuration);
+    lc.Enrich.WithMachineName();
+    lc.Enrich.WithThreadId();
+    lc.Enrich.WithThreadName();
+    lc.WriteTo.File("Logs/log.txt",
+        outputTemplate: 
+            "{Timestamp:HH:mm:ss} [{Level:u3}] " +
+            "[{MachineName} #{ThreadId} {ThreadName}] " +
+            "{Message:lj}{NewLine}{Exception}",
+        rollingInterval: RollingInterval.Day);
+    lc.WriteTo.File("Logs/errors.txt",
+        outputTemplate:
+        "{Timestamp:HH:mm:ss} [{Level:u3}] " +
+        "[{MachineName} #{ThreadId} {ThreadName}] " +
+        "{Message:lj}{NewLine}{Exception}",
+        restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Error,
+        rollingInterval: RollingInterval.Day);
     lc.WriteTo.MSSqlServer(
+        //restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information,
         connectionString: ctx.Configuration.GetConnectionString("DefaultConnection"),
         sinkOptions: new MSSqlServerSinkOptions
         {
             TableName = "LogEvents",
             AutoCreateSqlTable = true
+        },
+        columnOptions: new ColumnOptions()
+        {
+            AdditionalColumns = new SqlColumn[]
+            {
+                new SqlColumn()
+                {
+                    ColumnName = "SourceContext",
+                    PropertyName = "SourceContext",
+                    DataType = System.Data.SqlDbType.NVarChar
+                }
+            }
         }
     );
 }, writeToProviders: true);
@@ -133,7 +171,8 @@ app.MapGet("/error",
         app.Logger.LogError(
             CustomLogEvents.Error_Get,
             exceptionHandler?.Error,
-            "An unhandled exception occurred.");
+            "An unhandled exception occurred. " +
+            "{errorMessage}.", exceptionHandler?.Error.Message);
 
         return Results.Problem(details);
     });
